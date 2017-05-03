@@ -2,6 +2,9 @@ const {app, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
+const client = require('electron-connect').client;
+
+
 let argv = require('yargs').argv;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -39,6 +42,8 @@ function createWindow(){
     window.on('closed', () => {
         window = null;
     });
+
+    client.create(window);
 }
 
 // This method will be called when Electron has finished

@@ -88,12 +88,36 @@ gulp.task('watcher:ts', ['compile:ts'], function(){
     gulp.watch(config.srcs.ts, ['compile:ts']);
 });
 
-/** server */
+/** server tasks*/
 gulp.task('server', function(){
     // Start browser process
-    electronServe.start('--dev=true');
+    electronServe.start('--dev=true', serverProcess);
 
-    gulp.watch(config.srcs.ts, ['compile:ts', electronServe.restart]);
+    gulp.watch(config.srcs.ts, ['compile:ts', 'server:restart']);
     // Reload renderer process
-    gulp.watch([config.srcs.render, config.srcs.index], electronServe.reload);
+    gulp.watch([config.srcs.render, config.srcs.index], 'server:reload');
 });
+
+gulp.task('server:restart', function(done){
+    electronServe.restart(serverProcess);
+
+    done();
+});
+
+gulp.task('server:reload', function(done){
+    electronServe.reload(serverProcess);
+
+    setTimeout(function() {
+       electronServe.broadcast('Reload');
+       done();
+    });
+});
+
+/** functions */
+function serverProcess(electronProcState){
+    console.log('electron process state: ' + electronProcState);
+
+    if (electronProcState == 'stopped') {
+        process.exit();
+    }
+}
